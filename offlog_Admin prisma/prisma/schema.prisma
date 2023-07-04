@@ -1,0 +1,373 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model m_admin {
+  id                        BigInt                  @id @default(autoincrement())
+  a_name                    String                  @db.VarChar(128)
+  a_email                   String                  @db.VarChar(128)
+  a_password                String                  @db.VarChar(128)
+  a_verify                  Int                     @db.TinyInt
+  a_secret_code             String                  @db.VarChar(128)
+  a_gender                  Int                     @db.TinyInt
+  a_phone                   String
+  del_flg                   Int                     @default(0) @db.TinyInt
+  create_date               DateTime                @default(now())
+  update_date               DateTime                @updatedAt
+  create_township           m_township[]            @relation("createby")
+  update_township           m_township[]            @relation("updateby")
+  create_job_type           m_job_type[]            @relation("createby")
+  update_job_type           m_job_type[]            @relation("updateby")
+  create_shift_time         m_shift_time[]          @relation("createby")
+  update_shift_time         m_shift_time[]          @relation("updateby")
+  create_employee           m_employee[]            @relation("createby")
+  update_employee           m_employee[]            @relation("updateby")
+  create_department         m_department[]          @relation("createby")
+  update_department         m_department[]          @relation("updateby")
+  create_emp_dep            t_employee_department[] @relation("createby")
+  update_emp_dep            t_employee_department[] @relation("updateby")
+  create_att_status         m_attendance_status[]   @relation("createby")
+  update_att_status         m_attendance_status[]   @relation("updateby")
+  create_t_attendance       t_attendance[]          @relation("createby")
+  update_t_attendance       t_attendance[]          @relation("updateby")
+  create_m_report           m_report[]              @relation("createby")
+  update_m_report           m_report[]              @relation("updateby")
+  sender_m_report           m_report[]              @relation("sender")
+  create_m_employee_mote    m_employee_note[]       @relation("createby")
+  update_m_employee_mote    m_employee_note[]       @relation("updateby")
+  create_m_holiday_category m_holiday_category[]    @relation("createby")
+  update_m_holiday_category m_holiday_category[]    @relation("updateby")
+  create_m_holiday          m_holiday[]             @relation("createby")
+  update_m_holiday          m_holiday[]             @relation("updateby")
+  create_m_leave_category   m_leave_category[]      @relation("createby")
+  update_m_leave_category   m_leave_category[]      @relation("updateby")
+  create_m_leave            m_leave[]               @relation("createby")
+  update_m_leave            m_leave[]               @relation("updateby")
+  create_t_employee_leave   t_employee_leave[]      @relation("createby")
+  update_t_employee_leave   t_employee_leave[]      @relation("updateby")
+  create_m_news             m_news[]                @relation("createby")
+  update_m_news             m_news[]                @relation("updateby")
+  create_m_message_category m_message_category[]    @relation("createby")
+  update_m_message_category m_message_category[]    @relation("updateby")
+  create_m_message          m_message[]             @relation("createby")
+  update_m_message          m_message[]             @relation("updateby")
+  create_m_office_setting   m_office_setting[]      @relation("createby")
+  update_m_office_setting   m_office_setting[]      @relation("updateby")
+}
+
+model m_township {
+  id          BigInt       @id @default(autoincrement())
+  t_name      String       @db.VarChar(128)
+  del_flg     Int          @default(0) @db.TinyInt
+  create_date DateTime     @default(now())
+  create_by   BigInt
+  createby    m_admin      @relation("createby", fields: [create_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  update_date DateTime     @updatedAt
+  update_by   BigInt?
+  updateby    m_admin?     @relation("updateby", fields: [update_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  employee    m_employee[]
+}
+
+model m_job_type {
+  id          BigInt       @id @default(autoincrement())
+  j_name      String       @db.VarChar(128)
+  j_remark    String       @db.VarChar(128)
+  del_flg     Int          @default(0) @db.TinyInt
+  create_date DateTime     @default(now())
+  create_by   BigInt
+  createby    m_admin      @relation("createby", fields: [create_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  update_date DateTime     @updatedAt
+  update_by   BigInt?
+  updateby    m_admin?     @relation("updateby", fields: [update_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  employee    m_employee[]
+}
+
+model m_shift_time {
+  id           BigInt       @id @default(autoincrement())
+  s_start_time DateTime
+  s_end_time   DateTime
+  del_flg      Int          @default(0) @db.TinyInt
+  create_date  DateTime     @default(now())
+  create_by    BigInt
+  createby     m_admin      @relation("createby", fields: [create_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  update_date  DateTime     @updatedAt
+  update_by    BigInt?
+  updateby     m_admin?     @relation("updateby", fields: [update_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  m_employee   m_employee[]
+}
+
+model m_employee {
+  id               BigInt                  @id @default(autoincrement())
+  e_full_name      String                  @db.VarChar(128)
+  e_nick_name      String?                 @db.VarChar(128)
+  e_dob            DateTime
+  e_contact_mail   String                  @db.VarChar(128)
+  e_phone          String                  @db.VarChar(128)
+  e_emgc_phone     String?                 @db.VarChar(128)
+  e_blood_type     Int?                    @db.TinyInt
+  e_nationality    String                  @db.VarChar(64)
+  e_religion       Int?                    @db.TinyInt
+  e_personal_id    String                  @db.VarChar(64)
+  e_township_id    BigInt
+  townshipID       m_township              @relation(fields: [e_township_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  e_address        String                  @db.VarChar(256)
+  e_employee_ID    String?                 @db.VarChar(128)
+  e_join_date      DateTime?
+  e_job_id         BigInt
+  jobID            m_job_type              @relation(fields: [e_job_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  e_shift_time_id  BigInt?
+  shifTimeID       m_shift_time?           @relation(fields: [e_shift_time_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  del_flg          Int                     @default(0) @db.TinyInt
+  create_date      DateTime                @default(now())
+  create_by        BigInt
+  createby         m_admin                 @relation("createby", fields: [create_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  update_date      DateTime                @updatedAt
+  update_by        BigInt?
+  updateby         m_admin?                @relation("updateby", fields: [update_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  tdepartment      t_employee_department[]
+  t_attendance     t_attendance[]
+  m_employee_note  m_employee_note[]
+  m_leave          m_leave[]
+  t_employee_leave t_employee_leave[]
+  m_message        m_message[]
+}
+
+model m_department {
+  id          BigInt                  @id @default(autoincrement())
+  d_name      String                  @db.VarChar(128)
+  d_remark    String                  @db.VarChar(1024)
+  d_color     String                  @db.VarChar(128)
+  del_flg     Int                     @default(0) @db.TinyInt
+  create_date DateTime                @default(now())
+  createby    m_admin                 @relation("createby", fields: [create_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  create_by   BigInt
+  update_date DateTime                @updatedAt
+  updateby    m_admin?                @relation("updateby", fields: [update_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  update_by   BigInt?
+  tdepartment t_employee_department[]
+  m_message   m_message[]
+}
+
+model t_employee_department {
+  id           BigInt       @id @default(autoincrement())
+  e_id         BigInt
+  employeeID   m_employee   @relation(fields: [e_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  d_id         BigInt
+  departmentID m_department @relation(fields: [d_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  ed_position  String       @db.VarChar(128)
+  ed_join_date DateTime
+  del_flg      Int          @default(0) @db.TinyInt
+  createby     m_admin      @relation("createby", fields: [create_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  create_by    BigInt
+  updateby     m_admin?     @relation("updateby", fields: [update_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  update_by    BigInt?
+}
+
+model m_attendance_status {
+  id           BigInt         @id @default(autoincrement())
+  s_name       String         @db.VarChar(128)
+  del_flg      Int            @default(0) @db.TinyInt
+  createby     m_admin        @relation("createby", fields: [create_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  create_by    BigInt
+  updateby     m_admin?       @relation("updateby", fields: [update_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  update_by    BigInt?
+  t_attendance t_attendance[]
+}
+
+model t_attendance {
+  id           BigInt              @id @default(autoincrement())
+  e_id         BigInt
+  employeeID   m_employee          @relation(fields: [e_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  a_status_id  BigInt
+  statusID     m_attendance_status @relation(fields: [a_status_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  a_check_in   DateTime
+  a_check_out  DateTime
+  a_break_time DateTime
+  a_work_hours DateTime
+  del_flg      Int                 @default(0) @db.TinyInt
+  createby     m_admin             @relation("createby", fields: [create_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  create_by    BigInt
+  updateby     m_admin?            @relation("updateby", fields: [update_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  update_by    BigInt?
+}
+
+model m_report {
+  id            BigInt    @id @default(autoincrement())
+  r_sender      BigInt
+  senderID      m_admin   @relation("sender", fields: [r_sender], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  r_receiver    String    @db.VarChar(128)
+  r_cc          String    @db.VarChar(128)
+  r_subject     String    @db.VarChar(128)
+  r_meessage    String    @db.VarChar(1024)
+  r_attach_type Int       @db.TinyInt
+  r_attach_path String    @db.VarChar(128)
+  r_schedule    DateTime?
+  del_flg       Int       @default(0) @db.TinyInt
+  createby      m_admin   @relation("createby", fields: [create_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  create_by     BigInt
+  updateby      m_admin?  @relation("updateby", fields: [update_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  update_by     BigInt?
+}
+
+model m_employee_note {
+  id            BigInt     @id @default(autoincrement())
+  n_title       String     @db.VarChar(128)
+  n_description String     @db.VarChar(1024)
+  n_pin         Int        @db.TinyInt
+  e_id          BigInt
+  employeeID    m_employee @relation(fields: [e_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  del_flg       Int        @default(0) @db.TinyInt
+  createby      m_admin    @relation("createby", fields: [create_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  create_by     BigInt
+  updateby      m_admin?   @relation("updateby", fields: [update_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  update_by     BigInt?
+}
+
+model m_holiday_category {
+  id        BigInt      @id @default(autoincrement())
+  c_name    String      @db.VarChar(128)
+  c_color   String      @db.VarChar(64)
+  del_flg   Int         @default(0) @db.TinyInt
+  createby  m_admin     @relation("createby", fields: [create_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  create_by BigInt
+  updateby  m_admin?    @relation("updateby", fields: [update_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  update_by BigInt?
+  m_holiday m_holiday[]
+}
+
+model m_holiday {
+  id           BigInt             @id @default(autoincrement())
+  h_name       String             @db.VarChar(128)
+  h_category   BigInt
+  h_categoryID m_holiday_category @relation(fields: [h_category], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  h_date       DateTime           @db.Date
+  del_flg      Int                @default(0) @db.TinyInt
+  createby     m_admin            @relation("createby", fields: [create_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  create_by    BigInt
+  updateby     m_admin?           @relation("updateby", fields: [update_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  update_by    BigInt?
+}
+
+model m_leave_category {
+  id               BigInt             @id @default(autoincrement())
+  c_name           String             @db.VarChar(128)
+  c_color          String             @db.VarChar(128)
+  c_allow_days     Int
+  c_info           String             @db.VarChar(1024)
+  del_flg          Int                @default(0) @db.TinyInt
+  createby         m_admin            @relation("createby", fields: [create_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  create_by        BigInt
+  updateby         m_admin?           @relation("updateby", fields: [update_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  update_by        BigInt?
+  m_leave          m_leave[]
+  t_employee_leave t_employee_leave[]
+}
+
+model m_leave {
+  id               BigInt           @id @default(autoincrement())
+  e_id             BigInt
+  employeeID       m_employee       @relation(fields: [e_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  c_id             BigInt
+  categoryID       m_leave_category @relation(fields: [c_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  l_date           DateTime         @db.Date
+  l_description    String           @db.VarChar(1024)
+  l_request_status Int              @db.TinyInt
+  l_reject_comment String?          @db.VarChar(128)
+  del_flg          Int              @default(0) @db.TinyInt
+  createby         m_admin          @relation("createby", fields: [create_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  create_by        BigInt
+  updateby         m_admin?         @relation("updateby", fields: [update_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  update_by        BigInt?
+}
+
+model t_employee_leave {
+  id             BigInt           @id @default(autoincrement())
+  e_id           BigInt
+  employeeID     m_employee       @relation(fields: [e_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  c_id           BigInt
+  categoryID     m_leave_category @relation(fields: [c_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  t_remain_leave Int
+  del_flg        Int              @default(0) @db.TinyInt
+  createby       m_admin          @relation("createby", fields: [create_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  create_by      BigInt
+  updateby       m_admin?         @relation("updateby", fields: [update_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  update_by      BigInt?
+}
+
+model m_news {
+  id             BigInt   @id @default(autoincrement())
+  n_photo_path_1 String?  @db.VarChar(1024)
+  n_photo_path_2 String?  @db.VarChar(1024)
+  n_photo_path_3 String?  @db.VarChar(1024)
+  n_photo_path_4 String?  @db.VarChar(1024)
+  n_photo_path_5 String?  @db.VarChar(1024)
+  n_photo_path_6 String?  @db.VarChar(1024)
+  n_title        String   @db.VarChar(128)
+  n_description  String   @db.VarChar(1024)
+  n_tag          Int
+  del_flg        Int      @default(0) @db.TinyInt
+  createby       m_admin  @relation("createby", fields: [create_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  create_by      BigInt
+  updateby       m_admin? @relation("updateby", fields: [update_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  update_by      BigInt?
+}
+
+model m_message_category {
+  id        BigInt      @id @default(autoincrement())
+  c_name    String      @db.VarChar(128)
+  c_color   String      @db.VarChar(128)
+  del_flg   Int         @default(0) @db.TinyInt
+  createby  m_admin     @relation("createby", fields: [create_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  create_by BigInt
+  updateby  m_admin?    @relation("updateby", fields: [update_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  update_by BigInt?
+  m_message m_message[]
+}
+
+model m_message {
+  id                 BigInt             @id @default(autoincrement())
+  m_photo_path_1     String?            @db.VarChar(1024)
+  m_photo_path_2     String?            @db.VarChar(1024)
+  m_photo_path_3     String?            @db.VarChar(1024)
+  m_title            String             @db.VarChar(128)
+  m_description      String             @db.VarChar(1024)
+  m_category         BigInt
+  message_categoryID m_message_category @relation(fields: [m_category], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  d_id               String             @db.VarChar(128)
+  e_id               String             @db.VarChar(128)
+  del_flg            Int                @default(0) @db.TinyInt
+  createby           m_admin            @relation("createby", fields: [create_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  create_by          BigInt
+  updateby           m_admin?           @relation("updateby", fields: [update_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  update_by          BigInt?
+  m_employee         m_employee?        @relation(fields: [m_employeeId], references: [id])
+  m_employeeId       BigInt?
+  m_department       m_department?      @relation(fields: [m_departmentId], references: [id])
+  m_departmentId     BigInt?
+}
+
+model m_office_setting {
+  id               BigInt   @id @default(autoincrement())
+  o_name           String   @db.VarChar(128)
+  o_category       String   @db.VarChar(64)
+  o_location       String   @db.VarChar(128)
+  o_lat            String   @db.VarChar(128)
+  o_long           String   @db.VarChar(128)
+  o_start_time     DateTime @db.Time()
+  o_end_time       DateTime @db.Time()
+  o_break_time     DateTime @db.Time()
+  o_break_duration Int
+  del_flg          Int      @default(0) @db.TinyInt
+  createby         m_admin  @relation("createby", fields: [create_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  create_by        BigInt
+  updateby         m_admin? @relation("updateby", fields: [update_by], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  update_by        BigInt?
+}
